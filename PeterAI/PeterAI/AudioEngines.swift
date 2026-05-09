@@ -11,7 +11,7 @@ final class MicrophoneStreamer {
         stop()
 
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playAndRecord, mode: .voiceChat, options: [.allowBluetoothHFP, .defaultToSpeaker])
+        try session.setCategory(.playAndRecord, mode: .videoChat, options: [.allowBluetoothHFP, .allowBluetoothA2DP, .defaultToSpeaker])
         try session.setPreferredSampleRate(24_000)
         try session.setActive(true)
         try session.overrideOutputAudioPort(.speaker)
@@ -76,12 +76,13 @@ final class AudioPlaybackEngine {
     private let player = AVAudioPlayerNode()
     private let playbackFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 24_000, channels: 1, interleaved: false)!
     private var isPrepared = false
+    private let outputGain: Float = 2.4
 
     func prepare() throws {
         guard !isPrepared else { return }
 
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playAndRecord, mode: .voiceChat, options: [.allowBluetoothHFP, .defaultToSpeaker])
+        try session.setCategory(.playAndRecord, mode: .videoChat, options: [.allowBluetoothHFP, .allowBluetoothA2DP, .defaultToSpeaker])
         try session.setPreferredSampleRate(24_000)
         try session.setActive(true)
         try session.overrideOutputAudioPort(.speaker)
@@ -114,7 +115,8 @@ final class AudioPlaybackEngine {
         data.withUnsafeBytes { rawBuffer in
             let samples = rawBuffer.bindMemory(to: Int16.self)
             for index in 0..<frameCount {
-                channel[index] = max(-1, min(1, Float(samples[index]) / Float(Int16.max)))
+                let sample = (Float(samples[index]) / Float(Int16.max)) * outputGain
+                channel[index] = max(-1, min(1, sample))
             }
         }
 

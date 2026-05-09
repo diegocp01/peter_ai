@@ -8,6 +8,7 @@ struct PeterAIApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(viewModel)
+                .preferredColorScheme(.dark)
         }
     }
 }

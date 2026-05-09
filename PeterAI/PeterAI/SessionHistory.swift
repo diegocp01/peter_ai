@@ -86,6 +86,14 @@ enum SessionAnalytics {
 
 enum SessionStore {
     private static let key = "PeterAI.savedSessions.v1"
+    private static let activeKey = "PeterAI.activeSession.v1"
+
+    struct ActiveCheckpoint: Codable {
+        let id: UUID
+        let startedAt: Date
+        let lastUpdatedAt: Date
+        let lines: [ConversationLine]
+    }
 
     static func load() -> [SessionReport] {
         guard
@@ -110,5 +118,44 @@ enum SessionStore {
         updated.sort { $0.startedAt > $1.startedAt }
         save(updated)
         return updated
+    }
+
+    static func saveActiveCheckpoint(id: UUID, startedAt: Date, lines: [ConversationLine]) {
+        let checkpoint = ActiveCheckpoint(id: id, startedAt: startedAt, lastUpdatedAt: Date(), lines: lines)
+        guard let data = try? JSONEncoder().encode(checkpoint) else { return }
+        UserDefaults.standard.set(data, forKey: activeKey)
+    }
+
+    static func clearActiveCheckpoint() {
+        UserDefaults.standard.removeObject(forKey: activeKey)
+    }
+
+    static func recoverInterruptedSession(into sessions: [SessionReport]) -> [SessionReport] {
+        guard
+            let data = UserDefaults.standard.data(forKey: activeKey),
+            let checkpoint = try? JSONDecoder().decode(ActiveCheckpoint.self, from: data)
+        else {
+            return sessions
+        }
+
+        clearActiveCheckpoint()
+
+        let endedAt = checkpoint.lastUpdatedAt
+        let duration = endedAt.timeIntervalSince(checkpoint.startedAt)
+        let snapshot = SessionAnalytics.build(lines: checkpoint.lines, userDraft: "", assistantDraft: "", duration: duration)
+        let report = SessionReport(
+            id: checkpoint.id,
+            startedAt: checkpoint.startedAt,
+            endedAt: endedAt,
+            duration: duration,
+            wordCount: snapshot.statistics.totalWords,
+            transcript: snapshot.transcript,
+            statistics: snapshot.statistics,
+            summary: snapshot.transcript.isEmpty
+                ? "PeterAI was closed while a session was active. No spoken transcript was captured before the app closed."
+                : "PeterAI was closed while this session was active, so the local transcript and statistics were saved without an LLM summary."
+        )
+
+        return upsert(report, into: sessions)
     }
 }

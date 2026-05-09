@@ -10,15 +10,22 @@ struct ContentView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 connectionPanel
-                Divider()
+                Divider().overlay(PeterTheme.border)
                 transcriptView
                 sessionReportView
-                Divider()
+                Divider().overlay(PeterTheme.border)
                 controls
             }
-            .background(Color(uiColor: .systemGroupedBackground))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(PeterTheme.background)
             .navigationTitle("PeterAI")
             .navigationBarTitleDisplayMode(.inline)
+            .preferredColorScheme(.dark)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .tint(PeterTheme.accent)
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
+                viewModel.stopForAppTermination()
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -50,13 +57,13 @@ struct ContentView: View {
             HStack {
                 Label(viewModel.statusText, systemImage: viewModel.isActive ? "waveform.circle.fill" : "waveform.circle")
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(viewModel.isActive ? .green : .secondary)
+                    .foregroundStyle(viewModel.isActive ? PeterTheme.green : PeterTheme.secondaryText)
 
                 Spacer()
 
                 Text("gpt-realtime-2")
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(PeterTheme.secondaryText)
             }
 
             if !viewModel.hasSavedAPIKey {
@@ -66,9 +73,10 @@ struct ContentView: View {
                         .autocorrectionDisabled()
                         .focused($keyFieldFocused)
                         .font(.callout.monospaced())
+                        .foregroundStyle(PeterTheme.primaryText)
                         .padding(.horizontal, 12)
                         .frame(height: 42)
-                        .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 8))
+                        .background(PeterTheme.card, in: RoundedRectangle(cornerRadius: 8))
                         .disabled(viewModel.isActive)
 
                     Button {
@@ -87,12 +95,13 @@ struct ContentView: View {
             if let message = viewModel.notice {
                 Text(message)
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(PeterTheme.secondaryText)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
         .padding(16)
-        .background(Color(uiColor: .systemBackground))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(PeterTheme.surface)
     }
 
     @ViewBuilder
@@ -102,6 +111,7 @@ struct ContentView: View {
                 HStack {
                     Text("Last session")
                         .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(PeterTheme.primaryText)
                     Spacer()
                     if viewModel.isSummarizingSession {
                         ProgressView()
@@ -115,15 +125,16 @@ struct ContentView: View {
                     Label("\(report.wordCount) total", systemImage: "text.word.spacing")
                 }
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(PeterTheme.secondaryText)
 
                 Text(report.summary)
                     .font(.footnote)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(PeterTheme.primaryText)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(16)
-            .background(Color(uiColor: .systemBackground))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(PeterTheme.surface)
         }
     }
 
@@ -152,6 +163,7 @@ struct ContentView: View {
                 }
                 .padding(16)
             }
+            .background(PeterTheme.background)
             .onChange(of: viewModel.lines.count) {
                 withAnimation(.snappy) {
                     proxy.scrollTo("bottom", anchor: .bottom)
@@ -169,8 +181,8 @@ struct ContentView: View {
             }
             .overlay {
                 if viewModel.lines.isEmpty && viewModel.userDraft.isEmpty && viewModel.assistantDraft.isEmpty {
-                    ContentUnavailableView("No conversation yet", systemImage: "mic", description: Text("Tap Activate, speak naturally, then pause for Peter to respond."))
-                        .foregroundStyle(.secondary)
+                    ContentUnavailableView("No conversation yet", systemImage: "mic", description: Text("Press play and say Peter."))
+                        .foregroundStyle(PeterTheme.secondaryText)
                         .padding()
                 }
             }
@@ -178,27 +190,36 @@ struct ContentView: View {
     }
 
     private var controls: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 10) {
             Button {
                 viewModel.toggleActive()
             } label: {
-                Image(systemName: viewModel.isActive ? "pause.fill" : "play.fill")
-                    .font(.system(size: 28, weight: .bold))
-                    .frame(width: 86, height: 86)
+                HStack(spacing: 10) {
+                    Image(systemName: viewModel.isActive ? "pause.fill" : "play.fill")
+                        .font(.system(size: 18, weight: .bold))
+
+                    Text(viewModel.isActive ? "Pause Peter" : "Start Peter")
+                        .font(.headline.weight(.semibold))
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 58)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(viewModel.isActive ? .red : .blue)
-            .clipShape(Circle())
+            .buttonStyle(.plain)
+            .background(viewModel.isActive ? PeterTheme.red : PeterTheme.accent, in: Capsule())
             .accessibilityLabel(viewModel.isActive ? "Pause Peter" : "Play Peter")
 
             Text(viewModel.isActive ? "Listening until paused." : "Paused.")
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(PeterTheme.secondaryText)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(16)
-        .background(Color(uiColor: .systemBackground))
+        .padding(.horizontal, 20)
+        .padding(.top, 16)
+        .padding(.bottom, 20)
+        .frame(maxWidth: .infinity)
+        .background(PeterTheme.surface)
     }
 
     private func formattedDuration(_ duration: TimeInterval) -> String {
@@ -350,15 +371,28 @@ private struct TranscriptBubble: View {
         VStack(alignment: .leading, spacing: 5) {
             Text(line.role.title)
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(PeterTheme.secondaryText)
 
             Text(line.text)
                 .font(.body)
-                .foregroundStyle(.primary)
+                .foregroundStyle(PeterTheme.primaryText)
                 .textSelection(.enabled)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(line.role == .assistant ? Color(uiColor: .secondarySystemGroupedBackground) : Color.blue.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
+        .background(line.role == .assistant ? PeterTheme.card : PeterTheme.userBubble, in: RoundedRectangle(cornerRadius: 8))
     }
+}
+
+private enum PeterTheme {
+    static let background = Color(red: 0.06, green: 0.075, blue: 0.075)
+    static let surface = Color(red: 0.09, green: 0.11, blue: 0.105)
+    static let card = Color(red: 0.14, green: 0.16, blue: 0.15)
+    static let userBubble = Color(red: 0.08, green: 0.30, blue: 0.24)
+    static let primaryText = Color(red: 0.94, green: 0.96, blue: 0.93)
+    static let secondaryText = Color(red: 0.62, green: 0.67, blue: 0.63)
+    static let border = Color(red: 0.18, green: 0.22, blue: 0.20)
+    static let accent = Color(red: 0.08, green: 0.52, blue: 0.38)
+    static let green = Color(red: 0.24, green: 0.80, blue: 0.52)
+    static let red = Color(red: 0.72, green: 0.18, blue: 0.16)
 }

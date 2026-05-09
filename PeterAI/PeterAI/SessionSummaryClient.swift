@@ -26,7 +26,7 @@ enum SessionSummaryError: LocalizedError {
 }
 
 final class SessionSummaryClient {
-    private let model = "gpt-5-nano"
+    private let model = "gpt-5.4-nano"
 
     func summarize(apiKey: String, transcript: String, duration: TimeInterval, wordCount: Int) async throws -> String {
         let trimmedTranscript = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -83,6 +83,10 @@ final class SessionSummaryClient {
             return text
         }
 
+        if let issue = extractIncompleteMessage(from: data) {
+            throw SessionSummaryError.apiError(issue)
+        }
+
         throw SessionSummaryError.invalidResponse
     }
 
@@ -95,18 +99,67 @@ final class SessionSummaryClient {
             return outputText.trimmingCharacters(in: .whitespacesAndNewlines)
         }
 
-        guard let output = json["output"] as? [[String: Any]] else {
-            return nil
-        }
-
-        let chunks = output.flatMap { item -> [String] in
-            guard let content = item["content"] as? [[String: Any]] else { return [] }
-            return content.compactMap { part in
-                part["text"] as? String
+        if let output = json["output"] {
+            let chunks = collectOutputText(from: output)
+            let joined = chunks.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+            if !joined.isEmpty {
+                return joined
             }
         }
 
-        return chunks.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+        return nil
+    }
+
+    private func collectOutputText(from value: Any) -> [String] {
+        if let string = value as? String {
+            return [string]
+        }
+
+        if let array = value as? [Any] {
+            return array.flatMap { collectOutputText(from: $0) }
+        }
+
+        guard let dictionary = value as? [String: Any] else {
+            return []
+        }
+
+        if let type = dictionary["type"] as? String,
+           ["reasoning", "summary", "annotation"].contains(type) {
+            return []
+        }
+
+        var chunks: [String] = []
+        if let text = dictionary["text"] {
+            chunks.append(contentsOf: collectOutputText(from: text))
+        }
+        if let outputText = dictionary["output_text"] {
+            chunks.append(contentsOf: collectOutputText(from: outputText))
+        }
+        if let content = dictionary["content"] {
+            chunks.append(contentsOf: collectOutputText(from: content))
+        }
+        if let message = dictionary["message"] {
+            chunks.append(contentsOf: collectOutputText(from: message))
+        }
+
+        return chunks
+    }
+
+    private func extractIncompleteMessage(from data: Data) -> String? {
+        guard
+            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+            let status = json["status"] as? String,
+            status != "completed"
+        else {
+            return nil
+        }
+
+        if let details = json["incomplete_details"] as? [String: Any],
+           let reason = details["reason"] as? String {
+            return "OpenAI summary response was incomplete: \(reason)."
+        }
+
+        return "OpenAI summary response was \(status)."
     }
 
     private func extractErrorMessage(from data: Data) -> String? {

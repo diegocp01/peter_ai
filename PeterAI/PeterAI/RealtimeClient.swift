@@ -21,7 +21,7 @@ final class RealtimeClient {
     private let sendQueue = DispatchQueue(label: "PeterAI.RealtimeClient.send")
 
     func connect(apiKey: String) {
-        disconnect()
+        disconnect(sendEvent: false)
 
         guard let url = URL(string: "wss://api.openai.com/v1/realtime?model=\(model)") else {
             onEvent?(.error("Invalid Realtime URL."))
@@ -41,12 +41,15 @@ final class RealtimeClient {
         receiveLoop()
     }
 
-    func disconnect() {
+    func disconnect(sendEvent: Bool = true) {
+        let hadConnection = socket != nil || urlSession != nil
         socket?.cancel(with: .goingAway, reason: nil)
         socket = nil
         urlSession?.invalidateAndCancel()
         urlSession = nil
-        onEvent?(.disconnected)
+        if hadConnection && sendEvent {
+            onEvent?(.disconnected)
+        }
     }
 
     func sendAudio(_ pcm16: Data) {
@@ -88,8 +91,8 @@ final class RealtimeClient {
                 - If something fails, say briefly what went wrong and what the user can try next.
                 - For names, numbers, dates, and important details, repeat them clearly when confirmation matters.
                 """,
-                "modalities": ["audio"],
-                "max_response_output_tokens": 900,
+                "output_modalities": ["audio"],
+                "max_output_tokens": 900,
                 "audio": [
                     "input": [
                         "format": [
@@ -114,7 +117,7 @@ final class RealtimeClient {
                             "type": "audio/pcm",
                             "rate": 24000
                         ],
-                        "voice": "marin",
+                        "voice": "cedar",
                         "speed": 1.0
                     ]
                 ]

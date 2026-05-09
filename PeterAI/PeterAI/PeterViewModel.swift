@@ -1,5 +1,6 @@
 import AVFoundation
 import Foundation
+import UIKit
 
 @MainActor
 final class PeterViewModel: ObservableObject {
@@ -21,13 +22,15 @@ final class PeterViewModel: ObservableObject {
     private let summaryClient = SessionSummaryClient()
     private let reminderManager = ListeningReminderManager()
     private var sessionStartedAt: Date?
+    private var activeSessionID: UUID?
     private var reminderTask: Task<Void, Never>?
     private var lastReminderLineIndex = 0
+    private var isStopping = false
 
     init(apiKey: String = KeychainStore.loadAPIKey() ?? "") {
         self.apiKey = apiKey
         self.hasSavedAPIKey = !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        self.savedSessions = SessionStore.load()
+        self.savedSessions = SessionStore.recoverInterruptedSession(into: SessionStore.load())
         configureClient()
     }
 
@@ -57,6 +60,12 @@ final class PeterViewModel: ObservableObject {
         userDraft = ""
         assistantDraft = ""
         sessionReport = nil
+        checkpointActiveSession()
+    }
+
+    func stopForAppTermination() {
+        guard isActive else { return }
+        stop(shouldSummarize: true)
     }
 
     private func start() {
@@ -76,15 +85,19 @@ final class PeterViewModel: ObservableObject {
             do {
                 let notificationsAllowed = await reminderManager.requestAuthorization()
                 try playback.prepare()
-                client.connect(apiKey: trimmed)
-                try microphone.start { [weak self] chunk in
-                    self?.client.sendAudio(chunk)
-                }
-                sessionStartedAt = Date()
+                let startedAt = Date()
+                sessionStartedAt = startedAt
+                activeSessionID = UUID()
                 sessionReport = nil
                 isActive = true
                 statusText = "Connecting"
                 lastReminderLineIndex = lines.count
+                checkpointActiveSession()
+
+                client.connect(apiKey: trimmed)
+                try microphone.start { [weak self] chunk in
+                    self?.client.sendAudio(chunk)
+                }
                 startListeningReminders()
                 notice = notificationsAllowed ? "Listening stays active until you pause." : "Listening is active. Enable notifications to get listening reminders."
             } catch {
@@ -95,6 +108,9 @@ final class PeterViewModel: ObservableObject {
     }
 
     private func stop(shouldSummarize: Bool) {
+        guard isActive || sessionStartedAt != nil else { return }
+
+        isStopping = true
         let startedAt = sessionStartedAt
         let endedAt = Date()
         let duration = startedAt.map { endedAt.timeIntervalSince($0) } ?? 0
@@ -104,12 +120,15 @@ final class PeterViewModel: ObservableObject {
 
         microphone.stop()
         playback.stop()
-        client.disconnect()
+        client.disconnect(sendEvent: false)
         stopListeningReminders()
         isActive = false
         statusText = "Idle"
         sessionStartedAt = nil
+        activeSessionID = nil
         notice = shouldSummarize ? "Session paused." : "Session stopped."
+        SessionStore.clearActiveCheckpoint()
+        isStopping = false
 
         if shouldSummarize, let startedAt {
             summarizeSession(startedAt: startedAt, endedAt: endedAt, transcript: transcript, statistics: statistics)
@@ -129,33 +148,39 @@ final class PeterViewModel: ObservableObject {
         case .connected:
             statusText = "Listening"
         case .disconnected:
-            if isActive {
-                statusText = "Disconnected"
-                isActive = false
-                sessionStartedAt = nil
-                stopListeningReminders()
+            if isActive && !isStopping {
+                notice = "Realtime connection ended; session saved."
+                stop(shouldSummarize: true)
             }
         case .inputTranscriptDelta(let text):
             userDraft += text
+            checkpointActiveSession()
         case .inputTranscriptCompleted(let text):
             let final = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if !final.isEmpty {
                 lines.append(ConversationLine(role: .user, text: final))
             }
             userDraft = ""
+            checkpointActiveSession()
         case .outputTranscriptDelta(let text):
             assistantDraft += text
+            checkpointActiveSession()
         case .outputTranscriptCompleted(let text):
             let final = text.trimmingCharacters(in: .whitespacesAndNewlines)
             let fallback = assistantDraft.trimmingCharacters(in: .whitespacesAndNewlines)
             let rendered = final.isEmpty ? fallback : final
             if !rendered.isEmpty {
                 lines.append(ConversationLine(role: .assistant, text: rendered))
+                if UIApplication.shared.applicationState != .active {
+                    reminderManager.sendAnswer(rendered)
+                }
             }
             assistantDraft = ""
+            checkpointActiveSession()
         case .audioDelta(let data):
             playback.play(pcm16: data)
         case .error(let message):
+            guard isActive else { return }
             notice = message
             statusText = "Error"
         case .info(let message):
@@ -255,5 +280,21 @@ final class PeterViewModel: ObservableObject {
         let summary = TenWordSummary.make(from: recentText)
         reminderManager.sendReminder(body: summary)
         lastReminderLineIndex = lines.count
+    }
+
+    private func checkpointActiveSession() {
+        guard let activeSessionID, let sessionStartedAt else { return }
+
+        var checkpointLines = lines
+        let user = userDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        let assistant = assistantDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !user.isEmpty {
+            checkpointLines.append(ConversationLine(role: .user, text: user))
+        }
+        if !assistant.isEmpty {
+            checkpointLines.append(ConversationLine(role: .assistant, text: assistant))
+        }
+
+        SessionStore.saveActiveCheckpoint(id: activeSessionID, startedAt: sessionStartedAt, lines: checkpointLines)
     }
 }

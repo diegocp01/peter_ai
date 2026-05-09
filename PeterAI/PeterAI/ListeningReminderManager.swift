@@ -13,12 +13,20 @@ final class ListeningReminderManager {
     }
 
     func sendReminder(body: String) {
+        send(title: "PeterAI", body: body, identifierPrefix: "peterai-listening")
+    }
+
+    func sendAnswer(_ answer: String) {
+        send(title: "Peter replied", body: TenWordSummary.make(from: answer), identifierPrefix: "peterai-answer")
+    }
+
+    private func send(title: String, body: String, identifierPrefix: String) {
         let content = UNMutableNotificationContent()
-        content.title = "PeterAI"
+        content.title = title
         content.body = body
         content.sound = .default
 
-        let request = UNNotificationRequest(identifier: "peterai-listening-\(UUID().uuidString)", content: content, trigger: nil)
+        let request = UNNotificationRequest(identifier: "\(identifierPrefix)-\(UUID().uuidString)", content: content, trigger: nil)
         center.add(request)
     }
 }
