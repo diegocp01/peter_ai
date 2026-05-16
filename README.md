@@ -115,30 +115,43 @@ real devices, iPhone and Apple Watch may need Developer Mode enabled.
 
 ## Optional Codex Setup Prompt
 
-After cloning the repo and opening `PeterAI/PeterAI.xcodeproj` in Xcode, you can
-paste this prompt into Codex to have it guide the local install:
+After cloning the repo and downloading Xcode, you can paste this prompt into
+Codex to have it guide the local install from scratch:
 
 ```text
-You are in the PeterAI repo I just cloned. Xcode is already open with
-PeterAI/PeterAI.xcodeproj.
+I just cloned the PeterAI repo and downloaded Xcode. I am new to iOS
+development, so assume I do not know Xcode.
+
+Xcode may be open, but the project is not opened yet. First help me find the
+repo folder, then open PeterAI/PeterAI.xcodeproj in Xcode.
 
 Please set up and install this app on my real devices. Do not delete files,
 rewrite the app, or make unrelated refactors. Preserve the existing project and
 only make the minimum setup changes needed for my local machine.
 
-Use Xcode for the install. If you need to operate the Xcode UI or device prompts,
-use Computer Use. Help me set my Apple development team for both the iPhone and
-Apple Watch targets, choose unique bundle identifiers, and confirm the iOS 26.0+
-and watchOS 26.0+ platform components are installed.
+Use Xcode for the install. If you need to operate Xcode, Finder, Settings, or
+device prompts, use the Computer Use tool or skill because Codex can control Mac
+apps when I allow it.
+
+Walk me through everything step by step:
+
+1. Confirm Xcode is installed and can open the project.
+2. Confirm the iOS 26.0+ and watchOS 26.0+ platform components are installed.
+3. Help me sign in to Xcode with my free Apple Developer account if needed.
+4. Help me set my Apple development team for both the iPhone and Apple Watch
+   targets.
+5. Help me choose unique bundle identifiers for the iPhone and Watch targets.
+6. Help me enable Developer Mode and trusted developer settings on iPhone and
+   Apple Watch if those prompts appear.
+7. Help me approve microphone, network, signing, provisioning, and trust prompts.
 
 Install and run the iPhone app first. My iPhone should stay connected to the Mac,
 unlocked, and with the screen on. After the iPhone app launches, install and run
 the Apple Watch app. My Apple Watch should be paired to the iPhone, unlocked, on
 my wrist, near the Mac, and connected wirelessly to the iPhone.
 
-If Developer Mode, trusted developer, provisioning, signing, privacy, microphone,
-or network permission prompts appear, stop and tell me the exact steps to approve
-them on the device before continuing.
+If something appears on the device that you cannot click yourself, stop and tell
+me exactly what to tap before continuing.
 
 Do not commit or push changes unless I explicitly ask.
 ```
