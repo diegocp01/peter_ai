@@ -9,6 +9,13 @@ web search tool for current information.
 The app is intentionally simple: press play, talk to Peter, hear the answer,
 and press pause to end the session.
 
+## Project Status
+
+PeterAI is a working open source prototype. The core voice conversation flow
+works on iPhone and Apple Watch, but there are still bugs and rough edges,
+especially around live voice interactions and device setup. The project will
+keep improving, and PRs are welcome from anyone who wants to make it better.
+
 ## Features
 
 - iPhone voice mode using the microphone and streamed audio playback.
