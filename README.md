@@ -27,8 +27,8 @@ and press pause to end the session.
 ## Requirements
 
 - macOS with Xcode installed.
-- iPhone running iOS 17 or newer.
-- Optional: Apple Watch running watchOS 10 or newer.
+- iPhone running iOS 26.0 or newer.
+- Optional: Apple Watch running watchOS 26.0 or newer.
 - An OpenAI API key with access to `gpt-realtime-2` and web search.
 
 ## Setup
