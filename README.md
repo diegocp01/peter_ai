@@ -9,6 +9,8 @@ web search tool for current information.
 The app is intentionally simple: press play, talk to Peter, hear the answer,
 and press pause to end the session.
 
+<img src="docs/images/demo.png" alt="PeterAI demo" width="116">
+
 ## Project Status
 
 PeterAI is a working open source prototype. The core voice conversation flow
