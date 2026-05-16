@@ -1,0 +1,16 @@
+.DS_Store
+DerivedData/
+xcuserdata/
+*.xcuserstate
+
+# Local/private notes
+goal.md
+
+# Local secrets and Apple signing material
+.env
+.env.*
+*.mobileprovision
+*.p12
+*.cer
+*.key
+*.pem

@@ -1,35 +1,54 @@
-# Install PeterAI on iPhone
+# Install PeterAI On iPhone And Apple Watch
 
-## Current blocker
+PeterAI is designed to run on a physical iPhone, with an optional paired Apple
+Watch app.
 
-This Mac does not currently have full Xcode installed. The command line tools are present, but `xcodebuild` and `devicectl` both report that Xcode is required.
+## iPhone Install Checklist
 
-Install Xcode from the Mac App Store or from Apple Developer Downloads first.
+1. Install Xcode from the Mac App Store or Apple Developer Downloads.
+2. Open `PeterAI.xcodeproj` in Xcode.
+3. Select the `PeterAI` project.
+4. For the iPhone target, choose your Apple Development Team.
+5. Replace `com.example.peterai` with a unique bundle identifier.
+6. Keep automatic signing enabled.
+7. Connect your iPhone by USB and trust the Mac on the phone.
+8. Select your iPhone as the run destination.
+9. Press Run.
+10. On iPhone, paste your OpenAI API key and tap the key button.
+11. Press Play, allow microphone access, speak, then press Pause.
 
-## Run checklist
+## Apple Watch Install Checklist
 
-1. Open `PeterAI.xcodeproj` in Xcode.
-2. Select the `PeterAI` project, then the `PeterAI` target.
-3. Open Signing & Capabilities.
-4. Choose your Apple Development Team.
-5. Keep automatic signing enabled.
-6. Connect your iPhone by USB and trust the Mac on the phone.
-7. Select your iPhone as the run destination.
+1. Install the watchOS platform support in Xcode if prompted.
+2. Keep the iPhone connected to the Mac.
+3. Make sure the Apple Watch is paired, unlocked, and on your wrist.
+4. For the Watch target, choose your Apple Development Team.
+5. Replace `com.example.peterai.watchkitapp` with a unique Watch bundle ID.
+6. Make sure the Watch target companion bundle ID matches the iPhone bundle ID.
+7. Select the Watch run destination or the iPhone + Watch destination.
 8. Press Run.
-9. On the iPhone, paste your OpenAI API key and tap the key button.
-10. Tap Activate Peter, allow microphone access, speak, then pause.
+9. Open PeterAI on iPhone and Apple Watch.
+10. Send or sync the API key from iPhone to Watch.
+11. Press Play on the Watch and talk to Peter.
 
-## Expected result
+## Expected Result
 
-- The status changes from Connecting to Listening after the Realtime session is accepted.
-- The iOS microphone indicator appears while active.
-- Your spoken words appear in the transcript after the turn completes.
-- Peter replies with streamed audio.
-- Peter's reply appears in the transcript.
+- The status changes from connecting to ready/listening.
+- The system microphone indicator appears while active.
+- Your speech appears as transcript text.
+- Peter replies with streamed voice and transcript text.
+- On Apple Watch, the iPhone handles the network relay to OpenAI.
 
-## If it fails
+## Troubleshooting
 
-- If signing fails, change the bundle identifier in Xcode to something unique, such as `com.<yourname>.peterai`.
-- If the app opens but does not connect, confirm the API key has Realtime API access and check the notice text in the app.
-- If audio input works but no reply plays, keep the app active, check the phone volume, and try headphones or speaker output.
-- If Xcode asks for Developer Mode, enable it on the iPhone under Settings > Privacy & Security > Developer Mode.
+- If signing fails, set your Apple Development Team and use unique bundle IDs.
+- If Xcode asks for Developer Mode, enable it on iPhone under Settings >
+  Privacy & Security > Developer Mode.
+- If the app opens but does not connect, confirm the API key has Realtime API
+  access.
+- If Watch says it is waiting for iPhone, open the iPhone app and keep the phone
+  nearby.
+- If Watch networking fails, use the current iPhone relay flow instead of direct
+  Watch networking.
+- If audio input works but no reply plays, check volume and speaker/headphone
+  output.

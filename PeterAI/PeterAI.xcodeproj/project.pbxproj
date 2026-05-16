@@ -409,7 +409,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = NN97Q9PLU5;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PeterAI/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -418,7 +418,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.diegocabezas2.peterai;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.peterai;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -437,7 +437,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = NN97Q9PLU5;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PeterAI/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -446,7 +446,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.diegocabezas2.peterai;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.peterai;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -464,16 +464,16 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 7;
-				DEVELOPMENT_TEAM = NN97Q9PLU5;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = PeterAI;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "PeterAI needs microphone access so you can talk with Peter from Apple Watch.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.diegocabezas2.peterai;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.example.peterai;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.diegocabezas2.peterai.watchkitapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.peterai.watchkitapp;
 				PRODUCT_NAME = "PeterAI Watch App";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -494,15 +494,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 7;
-				DEVELOPMENT_TEAM = NN97Q9PLU5;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = PeterAI;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "PeterAI needs microphone access so you can talk with Peter from Apple Watch.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.diegocabezas2.peterai;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.example.peterai;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.diegocabezas2.peterai.watchkitapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.peterai.watchkitapp;
 				PRODUCT_NAME = "PeterAI Watch App";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
