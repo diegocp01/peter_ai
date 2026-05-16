@@ -33,10 +33,35 @@ and press pause to end the session.
 - For Apple Watch support: watchOS 26.0+ platform support installed.
 - iPhone running iOS 26.0 or newer.
 - Optional: Apple Watch running watchOS 26.0 or newer.
+- An Apple Account added to Xcode for code signing.
 - An OpenAI API key with access to `gpt-realtime-2` and web search.
 
 You can clone the repo without the iOS/watchOS platform components, but Xcode
 needs them installed before it can build, run, or install the app on devices.
+
+## Device Setup
+
+PeterAI is installed from Xcode, not the App Store. Before the app can run on
+real devices, iPhone and Apple Watch may need Developer Mode enabled.
+
+### iPhone
+
+1. Connect the iPhone to your Mac and pair it with Xcode.
+2. Open **Settings > Privacy & Security > Developer Mode**.
+3. Turn on Developer Mode, restart the iPhone if prompted, then confirm after
+   restart.
+4. If iOS blocks the app as an untrusted developer, open **Settings > General >
+   VPN & Device Management**, select your developer app/profile, and trust it.
+
+### Apple Watch
+
+1. Keep the Watch paired with the iPhone, unlocked, on your wrist, and near the
+   Mac.
+2. Open **Settings > Privacy & Security > Developer Mode** on Apple Watch.
+3. Turn on Developer Mode, restart the Watch if prompted, then confirm after
+   restart.
+4. If Xcode cannot install the Watch app, keep the iPhone connected and unlocked,
+   keep the Watch awake, then run the Watch target again from Xcode.
 
 ## Setup
 
