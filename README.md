@@ -115,18 +115,12 @@ real devices, iPhone and Apple Watch may need Developer Mode enabled.
 
 ## Optional Codex macOS App Setup Prompt
 
-After cloning the repo and downloading Xcode, you can paste this prompt into the
-Codex macOS app to have Codex use Xcode and Computer Use to set up the local
-install:
+After cloning the repo and downloading Xcode, connect your Iphone to your Mac, open Xcode and open that folder in Codex and you can paste this prompt into the Codex macOS app to have Codex use Xcode via Computer Use to set up the local install:
 
 ```text
-I just cloned the PeterAI repo and downloaded Xcode. I am using the Codex macOS
-app. I am new to iOS development, so assume I do not know Xcode.
+I just cloned the PeterAI repo and downloaded Xcode. I am new to iOS development, so assume I do not know Xcode.
 
-Use your Computer Use skill/tool to operate macOS apps for me. Use your own
-cursor to open Finder, open Xcode, click, select menus, choose settings, and run
-the app wherever possible. Do not only give me instructions unless I need to
-approve something on my iPhone, Apple Watch, Apple Account, or Mac permissions.
+Use your Computer Use skill/tool to operate Xcode for me if needed.
 
 Xcode may be open, but the project is not opened yet. First find the repo folder,
 then open PeterAI/PeterAI.xcodeproj in Xcode.
@@ -157,8 +151,6 @@ my wrist, near the Mac, and connected wirelessly to the iPhone.
 If something appears on the device that you cannot click yourself, stop and tell
 me exactly what to tap before continuing. After I approve it, continue using
 Computer Use and Xcode until the iPhone and Apple Watch apps are installed.
-
-Do not commit or push changes unless I explicitly ask.
 ```
 
 ## Using The App
