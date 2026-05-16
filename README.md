@@ -82,6 +82,36 @@ real devices, iPhone and Apple Watch may need Developer Mode enabled.
    the Watch paired, unlocked, on your wrist, and connected to the iPhone, then
    run the Watch target from Xcode.
 
+## Optional Codex Setup Prompt
+
+After cloning the repo and opening `PeterAI/PeterAI.xcodeproj` in Xcode, you can
+paste this prompt into Codex to have it guide the local install:
+
+```text
+You are in the PeterAI repo I just cloned. Xcode is already open with
+PeterAI/PeterAI.xcodeproj.
+
+Please set up and install this app on my real devices. Do not delete files,
+rewrite the app, or make unrelated refactors. Preserve the existing project and
+only make the minimum setup changes needed for my local machine.
+
+Use Xcode for the install. If you need to operate the Xcode UI or device prompts,
+use Computer Use. Help me set my Apple development team for both the iPhone and
+Apple Watch targets, choose unique bundle identifiers, and confirm the iOS 26.0+
+and watchOS 26.0+ platform components are installed.
+
+Install and run the iPhone app first. My iPhone should stay connected to the Mac,
+unlocked, and with the screen on. After the iPhone app launches, install and run
+the Apple Watch app. My Apple Watch should be paired to the iPhone, unlocked, on
+my wrist, near the Mac, and connected wirelessly to the iPhone.
+
+If Developer Mode, trusted developer, provisioning, signing, privacy, microphone,
+or network permission prompts appear, stop and tell me the exact steps to approve
+them on the device before continuing.
+
+Do not commit or push changes unless I explicitly ask.
+```
+
 ## Using The App
 
 ### iPhone
