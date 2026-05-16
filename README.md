@@ -33,11 +33,42 @@ and press pause to end the session.
 - For Apple Watch support: watchOS 26.0+ platform support installed.
 - iPhone running iOS 26.0 or newer.
 - Optional: Apple Watch running watchOS 26.0 or newer.
-- An Apple Account added to Xcode for code signing.
+- A free [Apple Developer account](https://developer.apple.com/register/) added
+  to Xcode for code signing.
 - An OpenAI API key with access to `gpt-realtime-2` and web search.
 
 You can clone the repo without the iOS/watchOS platform components, but Xcode
 needs them installed before it can build, run, or install the app on devices.
+
+## First-Time iOS Developers
+
+You do not need a paid Apple Developer Program membership just to install this
+on your own iPhone and Apple Watch from Xcode. Apple supports personal
+on-device testing with a free Apple Account. Sign in at
+[Apple Developer](https://developer.apple.com/register/), accept the Apple
+Developer Agreement, then add the same account in **Xcode > Settings >
+Accounts**.
+
+A paid Apple Developer Program membership is mainly needed for App Store
+distribution, TestFlight, broader device testing, and some advanced Apple
+capabilities. Apple's
+[membership comparison](https://developer.apple.com/support/compare-memberships/)
+explains the current limits for free personal teams.
+
+## Cost Notes
+
+PeterAI uses OpenAI's Realtime API, so conversations are billed by API usage.
+At the time this README was updated on May 16, 2026, `gpt-realtime-2` pricing
+is:
+
+- Audio: $32.00 / 1M input tokens, $0.40 / 1M cached input tokens, and
+  $64.00 / 1M output tokens.
+- Text: $4.00 / 1M input tokens, $0.40 / 1M cached input tokens, and
+  $24.00 / 1M output tokens.
+- Web search: $10.00 / 1,000 calls.
+
+Check the current [OpenAI API pricing](https://openai.com/api/pricing/) before
+long sessions or public demos.
 
 ## Device Setup
 
