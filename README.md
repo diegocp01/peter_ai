@@ -56,7 +56,7 @@ real devices, iPhone and Apple Watch may need Developer Mode enabled.
 ### Apple Watch
 
 1. Keep the Watch paired with the iPhone, unlocked, on your wrist, and near the
-   Mac.
+   Mac. The Watch installs wirelessly through the paired iPhone.
 2. Open **Settings > Privacy & Security > Developer Mode** on Apple Watch.
 3. Turn on Developer Mode, restart the Watch if prompted, then confirm after
    restart.
@@ -74,9 +74,13 @@ real devices, iPhone and Apple Watch may need Developer Mode enabled.
    - Watch target: `com.yourname.peterai.watchkitapp`
 6. Make sure the Watch target's companion app bundle identifier matches the
    iPhone bundle ID.
-7. Connect your iPhone, trust the Mac, select the iPhone run destination, and run.
-8. If using Apple Watch, make sure the Watch is paired, unlocked, on your wrist,
-   and installed from Xcode.
+7. Install on iPhone first: connect the iPhone to the Mac, keep the iPhone
+   unlocked with the screen on, trust the Mac if prompted, select the iPhone run
+   destination, and run.
+8. Open PeterAI on the iPhone once and confirm the app launches.
+9. If using Apple Watch, keep the iPhone connected to the Mac and unlocked, keep
+   the Watch paired, unlocked, on your wrist, and connected to the iPhone, then
+   run the Watch target from Xcode.
 
 ## Using The App
 
