@@ -1,10 +1,8 @@
 import SwiftUI
-import UIKit
 
 struct ContentView: View {
     @EnvironmentObject private var viewModel: PeterViewModel
     @FocusState private var keyFieldFocused: Bool
-    @State private var showingSessions = false
 
     var body: some View {
         NavigationStack {
@@ -12,7 +10,6 @@ struct ContentView: View {
                 connectionPanel
                 Divider().overlay(PeterTheme.border)
                 transcriptView
-                sessionReportView
                 Divider().overlay(PeterTheme.border)
                 controls
             }
@@ -23,19 +20,7 @@ struct ContentView: View {
             .preferredColorScheme(.dark)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .tint(PeterTheme.accent)
-            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
-                viewModel.stopForAppTermination()
-            }
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        showingSessions = true
-                    } label: {
-                        Image(systemName: "line.3.horizontal")
-                    }
-                    .accessibilityLabel("Session history")
-                }
-
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         viewModel.clearTranscript()
@@ -45,9 +30,6 @@ struct ContentView: View {
                     .disabled(viewModel.lines.isEmpty && viewModel.userDraft.isEmpty && viewModel.assistantDraft.isEmpty)
                     .accessibilityLabel("Clear transcript")
                 }
-            }
-            .sheet(isPresented: $showingSessions) {
-                SessionHistoryView(sessions: viewModel.savedSessions)
             }
         }
     }
@@ -90,6 +72,16 @@ struct ContentView: View {
                     .disabled(viewModel.apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isActive)
                     .accessibilityLabel("Save API key")
                 }
+            } else if !viewModel.isActive {
+                Button {
+                    viewModel.sendAPIKeyToWatch()
+                } label: {
+                    Label("Send API key to Apple Watch", systemImage: "applewatch")
+                        .font(.footnote.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .tint(PeterTheme.green)
             }
 
             if let message = viewModel.notice {
@@ -102,40 +94,6 @@ struct ContentView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(PeterTheme.surface)
-    }
-
-    @ViewBuilder
-    private var sessionReportView: some View {
-        if let report = viewModel.sessionReport {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text("Last session")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(PeterTheme.primaryText)
-                    Spacer()
-                    if viewModel.isSummarizingSession {
-                        ProgressView()
-                            .controlSize(.small)
-                    }
-                }
-
-                HStack(spacing: 12) {
-                    Label(formattedDuration(report.duration), systemImage: "clock")
-                    Label("\(report.statistics.userWords) heard", systemImage: "ear")
-                    Label("\(report.wordCount) total", systemImage: "text.word.spacing")
-                }
-                .font(.caption)
-                .foregroundStyle(PeterTheme.secondaryText)
-
-                Text(report.summary)
-                    .font(.footnote)
-                    .foregroundStyle(PeterTheme.primaryText)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(PeterTheme.surface)
-        }
     }
 
     private var transcriptView: some View {
@@ -181,7 +139,7 @@ struct ContentView: View {
             }
             .overlay {
                 if viewModel.lines.isEmpty && viewModel.userDraft.isEmpty && viewModel.assistantDraft.isEmpty {
-                    ContentUnavailableView("No conversation yet", systemImage: "mic", description: Text("Press play and say Peter."))
+                    ContentUnavailableView("No conversation yet", systemImage: "mic", description: Text("Press play and talk to Peter."))
                         .foregroundStyle(PeterTheme.secondaryText)
                         .padding()
                 }
@@ -198,7 +156,7 @@ struct ContentView: View {
                     Image(systemName: viewModel.isActive ? "pause.fill" : "play.fill")
                         .font(.system(size: 18, weight: .bold))
 
-                    Text(viewModel.isActive ? "Pause Peter" : "Start Peter")
+                    Text(viewModel.isActive ? "Pause" : "Play")
                         .font(.headline.weight(.semibold))
                 }
                 .foregroundStyle(.white)
@@ -209,7 +167,7 @@ struct ContentView: View {
             .background(viewModel.isActive ? PeterTheme.red : PeterTheme.accent, in: Capsule())
             .accessibilityLabel(viewModel.isActive ? "Pause Peter" : "Play Peter")
 
-            Text(viewModel.isActive ? "Listening until paused." : "Paused.")
+            Text(viewModel.isActive ? "Voice mode is on while this app is active." : "Paused.")
                 .font(.footnote)
                 .foregroundStyle(PeterTheme.secondaryText)
                 .multilineTextAlignment(.center)
@@ -221,135 +179,6 @@ struct ContentView: View {
         .frame(maxWidth: .infinity)
         .background(PeterTheme.surface)
     }
-
-    private func formattedDuration(_ duration: TimeInterval) -> String {
-        let total = max(0, Int(duration.rounded()))
-        let minutes = total / 60
-        let seconds = total % 60
-        if minutes > 0 {
-            return "\(minutes)m \(seconds)s"
-        }
-        return "\(seconds)s"
-    }
-}
-
-private struct SessionHistoryView: View {
-    let sessions: [SessionReport]
-
-    var body: some View {
-        NavigationStack {
-            Group {
-                if sessions.isEmpty {
-                    ContentUnavailableView("No saved sessions", systemImage: "line.3.horizontal", description: Text("Pause a PeterAI session to save its summary, insights, and stats."))
-                } else {
-                    List(sessions) { session in
-                        NavigationLink {
-                            SessionDetailView(session: session)
-                        } label: {
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(session.startedAt, format: .dateTime.month(.abbreviated).day().hour().minute())
-                                    .font(.headline)
-
-                                Text(session.summary)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(2)
-
-                                HStack(spacing: 10) {
-                                    Label(formattedDuration(session.duration), systemImage: "clock")
-                                    Label("\(session.statistics.userWords) heard", systemImage: "ear")
-                                    Label(session.statistics.sentimentLabel, systemImage: "chart.line.uptrend.xyaxis")
-                                }
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            }
-                            .padding(.vertical, 4)
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Sessions")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
-
-private struct SessionDetailView: View {
-    let session: SessionReport
-
-    var body: some View {
-        List {
-            Section("Summary and insights") {
-                Text(session.summary)
-                    .textSelection(.enabled)
-            }
-
-            Section("Statistics") {
-                StatRow(label: "Duration", value: formattedDuration(session.duration))
-                StatRow(label: "Words heard", value: "\(session.statistics.userWords)")
-                StatRow(label: "Peter words", value: "\(session.statistics.assistantWords)")
-                StatRow(label: "Total words", value: "\(session.statistics.totalWords)")
-                StatRow(label: "User turns", value: "\(session.statistics.userTurns)")
-                StatRow(label: "Peter turns", value: "\(session.statistics.assistantTurns)")
-                StatRow(label: "Words per minute", value: formattedDecimal(session.statistics.wordsPerMinute))
-                StatRow(label: "Avg words per turn", value: formattedDecimal(session.statistics.averageWordsPerTurn))
-                StatRow(label: "Longest turn", value: "\(session.statistics.longestTurnWords) words")
-                StatRow(label: "Sentiment", value: sentimentText(session.statistics))
-            }
-
-            Section("Transcript") {
-                Text(session.transcript.isEmpty ? "No transcript captured." : session.transcript)
-                    .font(.footnote.monospaced())
-                    .textSelection(.enabled)
-            }
-        }
-        .navigationTitle(sessionTitle(session.startedAt))
-        .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
-private struct StatRow: View {
-    let label: String
-    let value: String
-
-    var body: some View {
-        HStack {
-            Text(label)
-            Spacer()
-            Text(value)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.trailing)
-        }
-    }
-}
-
-private func formattedDuration(_ duration: TimeInterval) -> String {
-    let total = max(0, Int(duration.rounded()))
-    let hours = total / 3600
-    let minutes = (total % 3600) / 60
-    let seconds = total % 60
-    if hours > 0 {
-        return "\(hours)h \(minutes)m"
-    }
-    if minutes > 0 {
-        return "\(minutes)m \(seconds)s"
-    }
-    return "\(seconds)s"
-}
-
-private func formattedDecimal(_ value: Double) -> String {
-    value.formatted(.number.precision(.fractionLength(1)))
-}
-
-private func sentimentText(_ statistics: SessionStatistics) -> String {
-    guard let score = statistics.sentimentScore else {
-        return statistics.sentimentLabel
-    }
-    return "\(statistics.sentimentLabel) (\(formattedDecimal(score)))"
-}
-
-private func sessionTitle(_ date: Date) -> String {
-    date.formatted(.dateTime.month(.abbreviated).day().hour().minute())
 }
 
 private struct TranscriptBubble: View {

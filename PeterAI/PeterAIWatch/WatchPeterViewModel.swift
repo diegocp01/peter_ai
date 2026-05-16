@@ -2,9 +2,7 @@ import AVFoundation
 import Foundation
 
 @MainActor
-final class PeterViewModel: ObservableObject {
-    @Published var apiKey: String
-    @Published private(set) var hasSavedAPIKey: Bool
+final class WatchPeterViewModel: ObservableObject {
     @Published private(set) var isActive = false
     @Published private(set) var statusText = "Idle"
     @Published private(set) var notice: String?
@@ -13,82 +11,74 @@ final class PeterViewModel: ObservableObject {
     @Published private(set) var assistantDraft = ""
 
     private let client = RealtimeClient()
-    private let microphone = MicrophoneStreamer()
-    private let playback = AudioPlaybackEngine()
+    private let microphone = WatchMicrophoneStreamer()
+    private let playback = WatchAudioPlaybackEngine()
     private let webSearchClient = WebSearchClient()
+    private let keySync = WatchKeySync.shared
     private var handledToolCallIDs = Set<String>()
+    @Published private var apiKey = KeychainStore.loadAPIKey() ?? ""
     private var isStopping = false
     private var shouldStartMicrophoneAfterConnect = false
-    private var watchSyncTask: Task<Void, Never>?
+    private var keyRequestTask: Task<Void, Never>?
 
-    init(apiKey: String = KeychainStore.loadAPIKey() ?? "") {
-        self.apiKey = apiKey
-        self.hasSavedAPIKey = !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        configureClient()
-        PhoneKeyProvider.shared.start()
+    init() {
+        keySync.onAPIKey = { [weak self] key in
+            Task { @MainActor in
+                self?.receiveAPIKey(key)
+            }
+        }
+        keySync.onRelayEvent = { [weak self] event in
+            Task { @MainActor in
+                self?.handleRelayEvent(event)
+            }
+        }
+        keySync.onStatus = { [weak self] status in
+            Task { @MainActor in
+                self?.notice = status
+            }
+        }
+        keySync.start()
+
+        if apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            notice = "Open PeterAI on iPhone to sync your API key."
+            startKeyRequestLoop()
+        } else {
+            notice = "Ready."
+        }
+    }
+
+    deinit {
+        keyRequestTask?.cancel()
     }
 
     func toggleActive() {
         isActive ? stop() : start()
     }
 
-    func saveAPIKey() {
-        let trimmed = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+    var hasAPIKey: Bool {
+        !apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    func saveTypedAPIKey(_ key: String) {
+        let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
-            notice = "Paste your OpenAI API key first."
+            notice = "Paste your API key first."
             return
         }
 
-        do {
-            try KeychainStore.saveAPIKey(trimmed)
-            apiKey = trimmed
-            hasSavedAPIKey = true
-            PhoneKeyProvider.shared.syncAPIKey(trimmed)
-            notice = "API key saved in Keychain."
-        } catch {
-            notice = "Could not save API key: \(error.localizedDescription)"
-        }
+        receiveAPIKey(trimmed)
     }
 
-    func sendAPIKeyToWatch() {
-        let trimmed = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else {
-            notice = "Paste and save your OpenAI API key first."
-            return
-        }
-
-        watchSyncTask?.cancel()
-        notice = "Sending API key to Apple Watch..."
-        PhoneKeyProvider.shared.start()
-        watchSyncTask = Task { [trimmed] in
-            for _ in 0..<12 {
-                guard !Task.isCancelled else { return }
-                PhoneKeyProvider.shared.syncAPIKey(trimmed) { [weak self] status in
-                    Task { @MainActor in
-                        self?.notice = status
-                    }
-                }
-                try? await Task.sleep(nanoseconds: 1_000_000_000)
-            }
-
-            await MainActor.run {
-                notice = PhoneKeyProvider.shared.watchStatus(prefix: "Finished Watch sync")
-                watchSyncTask = nil
-            }
-        }
-    }
-
-    func clearTranscript() {
-        lines.removeAll()
-        userDraft = ""
-        assistantDraft = ""
-        notice = nil
+    func syncFromIPhone() {
+        notice = keySync.status(prefix: "Requesting key from iPhone")
+        keySync.requestAPIKey()
+        startKeyRequestLoop()
     }
 
     private func start() {
-        let trimmed = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else {
-            notice = "Paste and save your OpenAI API key before starting Peter."
+        if apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            notice = "Open PeterAI on iPhone to sync your API key."
+            startKeyRequestLoop()
             return
         }
 
@@ -104,13 +94,44 @@ final class PeterViewModel: ObservableObject {
                 handledToolCallIDs.removeAll()
                 isActive = true
                 statusText = "Connecting"
-                notice = "Voice mode is starting."
+                notice = "Starting voice mode."
                 shouldStartMicrophoneAfterConnect = true
 
-                client.connect(apiKey: trimmed)
+                keySync.startVoiceRelay()
             } catch {
                 stop()
                 notice = "Could not start audio: \(error.localizedDescription)"
+            }
+        }
+    }
+
+    private func startKeyRequestLoop() {
+        guard keyRequestTask == nil else { return }
+
+        keyRequestTask = Task { [weak self] in
+            for _ in 0..<20 {
+                guard !Task.isCancelled else { return }
+
+                await MainActor.run {
+                    guard let self else { return }
+                    if self.apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        if let key = KeychainStore.loadAPIKey() {
+                            self.receiveAPIKey(key)
+                        }
+                        self.keySync.requestAPIKey()
+                    }
+                }
+
+                try? await Task.sleep(nanoseconds: 1_500_000_000)
+
+                let hasKey = await MainActor.run {
+                    !(self?.apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+                }
+                if hasKey { break }
+            }
+
+            await MainActor.run {
+                self?.keyRequestTask = nil
             }
         }
     }
@@ -121,49 +142,45 @@ final class PeterViewModel: ObservableObject {
         isStopping = true
         microphone.stop()
         playback.stop()
-        client.disconnect(sendEvent: false)
+        keySync.stopVoiceRelay()
         shouldStartMicrophoneAfterConnect = false
         isActive = false
         statusText = "Idle"
         userDraft = ""
         assistantDraft = ""
-        notice = "Conversation ended."
+        notice = "Paused."
         isStopping = false
     }
 
-    private func configureClient() {
-        client.onEvent = { [weak self] event in
-            Task { @MainActor in
-                self?.handle(event)
-            }
-        }
-    }
-
-    private func handle(_ event: RealtimeClientEvent) {
-        switch event {
-        case .connected:
+    private func handleRelayEvent(_ event: [String: Any]) {
+        switch event["event"] as? String {
+        case "connected":
             startMicrophoneAfterRealtimeConnect()
-        case .disconnected:
+        case "disconnected":
             if isActive && !isStopping {
                 let previousNotice = notice
                 stop()
                 if let previousNotice, previousNotice.hasPrefix("Realtime connection failed") {
                     notice = previousNotice
                 } else {
-                    notice = "Realtime connection ended."
+                    notice = "Connection ended."
                 }
             }
-        case .inputTranscriptDelta(let text):
+        case "inputTranscriptDelta":
+            guard let text = event["text"] as? String else { return }
             userDraft += text
-        case .inputTranscriptCompleted(let text):
+        case "inputTranscriptCompleted":
+            let text = event["text"] as? String ?? ""
             let final = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if !final.isEmpty {
                 lines.append(ConversationLine(role: .user, text: final))
             }
             userDraft = ""
-        case .outputTranscriptDelta(let text):
+        case "outputTranscriptDelta":
+            guard let text = event["text"] as? String else { return }
             assistantDraft += text
-        case .outputTranscriptCompleted(let text):
+        case "outputTranscriptCompleted":
+            let text = event["text"] as? String ?? ""
             let final = text.trimmingCharacters(in: .whitespacesAndNewlines)
             let fallback = assistantDraft.trimmingCharacters(in: .whitespacesAndNewlines)
             let rendered = final.isEmpty ? fallback : final
@@ -171,34 +188,37 @@ final class PeterViewModel: ObservableObject {
                 lines.append(ConversationLine(role: .assistant, text: rendered))
             }
             assistantDraft = ""
-        case .audioDelta(let data):
+        case "audioDelta":
+            guard let data = event["audio"] as? Data else { return }
             playback.play(pcm16: data)
-        case .functionCall(let name, let callID, let arguments):
-            handleFunctionCall(name: name, callID: callID, arguments: arguments)
-        case .error(let message):
+        case "error":
             guard isActive else { return }
+            let message = event["message"] as? String ?? "iPhone relay failed."
             notice = message
             statusText = "Error"
-        case .info(let message):
+        case "status":
+            guard let message = event["message"] as? String else { return }
             notice = message
+        default:
+            break
         }
     }
 
     private func startMicrophoneAfterRealtimeConnect() {
         guard isActive else { return }
 
-        statusText = "Voice mode"
+        statusText = "Voice"
         guard shouldStartMicrophoneAfterConnect else {
-            notice = "Talk to Peter. Press pause to end."
+            notice = "Talk now."
             return
         }
 
         shouldStartMicrophoneAfterConnect = false
         do {
             try microphone.start { [weak self] chunk in
-                self?.client.sendAudio(chunk)
+                self?.keySync.sendRelayAudio(chunk)
             }
-            notice = "Talk to Peter. Press pause to end."
+            notice = "Talk now."
         } catch {
             stop()
             notice = "Could not start microphone: \(error.localizedDescription)"
@@ -209,23 +229,39 @@ final class PeterViewModel: ObservableObject {
         guard name == "search_web", !handledToolCallIDs.contains(callID) else { return }
         handledToolCallIDs.insert(callID)
 
-        let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         let query = extractSearchQuery(from: arguments)
         guard !query.isEmpty else {
             client.sendFunctionOutput(callID: callID, output: #"{"error":"Missing search query."}"#)
             return
         }
 
-        notice = "Searching the web..."
+        notice = "Searching..."
         Task {
             do {
-                let result = try await webSearchClient.search(apiKey: key, query: query)
+                let result = try await webSearchClient.search(apiKey: apiKey, query: query)
                 client.sendFunctionOutput(callID: callID, output: makeToolOutput(answer: result))
                 notice = nil
             } catch {
                 client.sendFunctionOutput(callID: callID, output: makeToolOutput(error: error.localizedDescription))
-                notice = "Web search failed: \(error.localizedDescription)"
+                notice = "Search failed."
             }
+        }
+    }
+
+    private func receiveAPIKey(_ key: String) {
+        let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        apiKey = trimmed
+        keyRequestTask?.cancel()
+        keyRequestTask = nil
+        do {
+            try KeychainStore.saveAPIKey(trimmed)
+            if !isActive {
+                notice = "Key synced. Ready."
+            }
+        } catch {
+            notice = "Key synced. Ready."
         }
     }
 
@@ -261,7 +297,7 @@ final class PeterViewModel: ObservableObject {
 
     private func requestMicrophonePermission() async -> Bool {
         await withCheckedContinuation { continuation in
-            if #available(iOS 17.0, *) {
+            if #available(watchOS 10.0, *) {
                 AVAudioApplication.requestRecordPermission { allowed in
                     continuation.resume(returning: allowed)
                 }

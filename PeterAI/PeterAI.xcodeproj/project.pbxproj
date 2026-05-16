@@ -15,10 +15,44 @@
 		1A0001062DCE000100000001 /* AudioEngines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002062DCE000100000001 /* AudioEngines.swift */; };
 		1A0001072DCE000100000001 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002072DCE000100000001 /* KeychainStore.swift */; };
 		1A0001082DCE000100000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0002092DCE000100000001 /* Assets.xcassets */; };
-		1A0001092DCE000100000001 /* SessionSummaryClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00020A2DCE000100000001 /* SessionSummaryClient.swift */; };
-		1A00010A2DCE000100000001 /* SessionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00020B2DCE000100000001 /* SessionHistory.swift */; };
-		1A00010B2DCE000100000001 /* ListeningReminderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00020C2DCE000100000001 /* ListeningReminderManager.swift */; };
+		1A00010C2DCE000100000001 /* WebSearchClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00020D2DCE000100000001 /* WebSearchClient.swift */; };
+		1A00010D2DCE000100000001 /* PhoneKeyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00020E2DCE000100000001 /* PhoneKeyProvider.swift */; };
+		1B0001012DCE000100000001 /* PeterAIWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0002012DCE000100000001 /* PeterAIWatchApp.swift */; };
+		1B0001022DCE000100000001 /* WatchContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0002022DCE000100000001 /* WatchContentView.swift */; };
+		1B0001032DCE000100000001 /* WatchPeterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0002032DCE000100000001 /* WatchPeterViewModel.swift */; };
+		1B0001042DCE000100000001 /* WatchAudioEngines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0002042DCE000100000001 /* WatchAudioEngines.swift */; };
+		1B0001052DCE000100000001 /* WatchKeySync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0002052DCE000100000001 /* WatchKeySync.swift */; };
+		1B0001062DCE000100000001 /* ConversationLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002042DCE000100000001 /* ConversationLine.swift */; };
+		1B0001072DCE000100000001 /* RealtimeClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002052DCE000100000001 /* RealtimeClient.swift */; };
+		1B0001082DCE000100000001 /* WebSearchClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00020D2DCE000100000001 /* WebSearchClient.swift */; };
+		1B0001092DCE000100000001 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002072DCE000100000001 /* KeychainStore.swift */; };
+		1B00010A2DCE000100000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1B0002062DCE000100000001 /* Assets.xcassets */; };
+		1C0001012DCE000100000001 /* PeterAI Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 1B0000012DCE000100000001 /* PeterAI Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1C0003012DCE000100000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A0008012DCE000100000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1B0005012DCE000100000001;
+			remoteInfo = "PeterAI Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1C0002012DCE000100000001 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				1C0001012DCE000100000001 /* PeterAI Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1A0000012DCE000100000001 /* PeterAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PeterAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -31,13 +65,26 @@
 		1A0002072DCE000100000001 /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
 		1A0002082DCE000100000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1A0002092DCE000100000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		1A00020A2DCE000100000001 /* SessionSummaryClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummaryClient.swift; sourceTree = "<group>"; };
-		1A00020B2DCE000100000001 /* SessionHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionHistory.swift; sourceTree = "<group>"; };
-		1A00020C2DCE000100000001 /* ListeningReminderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningReminderManager.swift; sourceTree = "<group>"; };
+		1A00020D2DCE000100000001 /* WebSearchClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSearchClient.swift; sourceTree = "<group>"; };
+		1A00020E2DCE000100000001 /* PhoneKeyProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneKeyProvider.swift; sourceTree = "<group>"; };
+		1B0000012DCE000100000001 /* PeterAI Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PeterAI Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1B0002012DCE000100000001 /* PeterAIWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PeterAIWatchApp.swift; sourceTree = "<group>"; };
+		1B0002022DCE000100000001 /* WatchContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchContentView.swift; sourceTree = "<group>"; };
+		1B0002032DCE000100000001 /* WatchPeterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchPeterViewModel.swift; sourceTree = "<group>"; };
+		1B0002042DCE000100000001 /* WatchAudioEngines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchAudioEngines.swift; sourceTree = "<group>"; };
+		1B0002052DCE000100000001 /* WatchKeySync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchKeySync.swift; sourceTree = "<group>"; };
+		1B0002062DCE000100000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		1A0003012DCE000100000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1B0003012DCE000100000001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -51,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				1A0004022DCE000100000001 /* PeterAI */,
+				1B0004022DCE000100000001 /* PeterAIWatch */,
 				1A0004032DCE000100000001 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -63,21 +111,34 @@
 				1A0002032DCE000100000001 /* PeterViewModel.swift */,
 				1A0002042DCE000100000001 /* ConversationLine.swift */,
 				1A0002052DCE000100000001 /* RealtimeClient.swift */,
+				1A00020D2DCE000100000001 /* WebSearchClient.swift */,
 				1A0002062DCE000100000001 /* AudioEngines.swift */,
 				1A0002072DCE000100000001 /* KeychainStore.swift */,
-				1A00020A2DCE000100000001 /* SessionSummaryClient.swift */,
-				1A00020B2DCE000100000001 /* SessionHistory.swift */,
-				1A00020C2DCE000100000001 /* ListeningReminderManager.swift */,
+				1A00020E2DCE000100000001 /* PhoneKeyProvider.swift */,
 				1A0002092DCE000100000001 /* Assets.xcassets */,
 				1A0002082DCE000100000001 /* Info.plist */,
 			);
 			path = PeterAI;
 			sourceTree = "<group>";
 		};
+		1B0004022DCE000100000001 /* PeterAIWatch */ = {
+			isa = PBXGroup;
+			children = (
+				1B0002012DCE000100000001 /* PeterAIWatchApp.swift */,
+				1B0002022DCE000100000001 /* WatchContentView.swift */,
+				1B0002032DCE000100000001 /* WatchPeterViewModel.swift */,
+				1B0002042DCE000100000001 /* WatchAudioEngines.swift */,
+				1B0002052DCE000100000001 /* WatchKeySync.swift */,
+				1B0002062DCE000100000001 /* Assets.xcassets */,
+			);
+			path = PeterAIWatch;
+			sourceTree = "<group>";
+		};
 		1A0004032DCE000100000001 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				1A0000012DCE000100000001 /* PeterAI.app */,
+				1B0000012DCE000100000001 /* PeterAI Watch App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -92,14 +153,33 @@
 				1A0006012DCE000100000001 /* Sources */,
 				1A0003012DCE000100000001 /* Frameworks */,
 				1A0007012DCE000100000001 /* Resources */,
+				1C0002012DCE000100000001 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1C0003022DCE000100000001 /* PBXTargetDependency */,
+			);
+			name = PeterAI;
+			productName = PeterAI;
+			productReference = 1A0000012DCE000100000001 /* PeterAI.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1B0005012DCE000100000001 /* PeterAI Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1B0009012DCE000100000001 /* Build configuration list for PBXNativeTarget "PeterAI Watch App" */;
+			buildPhases = (
+				1B0006012DCE000100000001 /* Sources */,
+				1B0003012DCE000100000001 /* Frameworks */,
+				1B0007012DCE000100000001 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = PeterAI;
-			productName = PeterAI;
-			productReference = 1A0000012DCE000100000001 /* PeterAI.app */;
+			name = "PeterAI Watch App";
+			productName = "PeterAI Watch App";
+			productReference = 1B0000012DCE000100000001 /* PeterAI Watch App.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -113,6 +193,10 @@
 				LastUpgradeCheck = 1630;
 				TargetAttributes = {
 					1A0005012DCE000100000001 = {
+						CreatedOnToolsVersion = 16.3;
+						ProvisioningStyle = Automatic;
+					};
+					1B0005012DCE000100000001 = {
 						CreatedOnToolsVersion = 16.3;
 						ProvisioningStyle = Automatic;
 					};
@@ -132,6 +216,7 @@
 			projectRoot = "";
 			targets = (
 				1A0005012DCE000100000001 /* PeterAI */,
+				1B0005012DCE000100000001 /* PeterAI Watch App */,
 			);
 		};
 /* End PBXProject section */
@@ -142,6 +227,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A0001082DCE000100000001 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1B0007012DCE000100000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1B00010A2DCE000100000001 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -157,15 +250,38 @@
 				1A0001032DCE000100000001 /* PeterViewModel.swift in Sources */,
 				1A0001042DCE000100000001 /* ConversationLine.swift in Sources */,
 				1A0001052DCE000100000001 /* RealtimeClient.swift in Sources */,
+				1A00010C2DCE000100000001 /* WebSearchClient.swift in Sources */,
 				1A0001062DCE000100000001 /* AudioEngines.swift in Sources */,
 				1A0001072DCE000100000001 /* KeychainStore.swift in Sources */,
-				1A0001092DCE000100000001 /* SessionSummaryClient.swift in Sources */,
-				1A00010A2DCE000100000001 /* SessionHistory.swift in Sources */,
-				1A00010B2DCE000100000001 /* ListeningReminderManager.swift in Sources */,
+				1A00010D2DCE000100000001 /* PhoneKeyProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1B0006012DCE000100000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1B0001012DCE000100000001 /* PeterAIWatchApp.swift in Sources */,
+				1B0001022DCE000100000001 /* WatchContentView.swift in Sources */,
+				1B0001032DCE000100000001 /* WatchPeterViewModel.swift in Sources */,
+				1B0001042DCE000100000001 /* WatchAudioEngines.swift in Sources */,
+				1B0001052DCE000100000001 /* WatchKeySync.swift in Sources */,
+				1B0001062DCE000100000001 /* ConversationLine.swift in Sources */,
+				1B0001072DCE000100000001 /* RealtimeClient.swift in Sources */,
+				1B0001082DCE000100000001 /* WebSearchClient.swift in Sources */,
+				1B0001092DCE000100000001 /* KeychainStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1C0003022DCE000100000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1B0005012DCE000100000001 /* PeterAI Watch App */;
+			targetProxy = 1C0003012DCE000100000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1A000A012DCE000100000001 /* Debug */ = {
@@ -291,7 +407,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = NN97Q9PLU5;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -319,7 +435,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 10;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = NN97Q9PLU5;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -341,6 +457,66 @@
 			};
 			name = Release;
 		};
+		1B000A032DCE000100000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = NN97Q9PLU5;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = PeterAI;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "PeterAI needs microphone access so you can talk with Peter from Apple Watch.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.diegocabezas2.peterai;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.diegocabezas2.peterai.watchkitapp;
+				PRODUCT_NAME = "PeterAI Watch App";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		1B000A042DCE000100000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = NN97Q9PLU5;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = PeterAI;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "PeterAI needs microphone access so you can talk with Peter from Apple Watch.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.diegocabezas2.peterai;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.diegocabezas2.peterai.watchkitapp;
+				PRODUCT_NAME = "PeterAI Watch App";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -349,6 +525,15 @@
 			buildConfigurations = (
 				1A000A032DCE000100000001 /* Debug */,
 				1A000A042DCE000100000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1B0009012DCE000100000001 /* Build configuration list for PBXNativeTarget "PeterAI Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1B000A032DCE000100000001 /* Debug */,
+				1B000A042DCE000100000001 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

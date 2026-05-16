@@ -8,6 +8,7 @@ enum RealtimeClientEvent {
     case outputTranscriptDelta(String)
     case outputTranscriptCompleted(String)
     case audioDelta(Data)
+    case functionCall(name: String, callID: String, arguments: String)
     case error(String)
     case info(String)
 }
@@ -60,6 +61,21 @@ final class RealtimeClient {
         ])
     }
 
+    func sendFunctionOutput(callID: String, output: String) {
+        sendJSON([
+            "type": "conversation.item.create",
+            "item": [
+                "type": "function_call_output",
+                "call_id": callID,
+                "output": output
+            ]
+        ])
+
+        sendJSON([
+            "type": "response.create"
+        ])
+    }
+
     private func sendSessionUpdate() {
         sendJSON([
             "type": "session.update",
@@ -70,14 +86,14 @@ final class RealtimeClient {
                 - You are Peter, a warm, practical voice companion for the owner of this iPhone.
                 - The main interface is voice. Speak naturally in short, useful turns.
 
-                # Active listening session
-                - When the user taps play, this is an active listening session that continues until the user taps pause or iOS stops the app.
-                - Do not say you are secretly listening. Be clear that listening happens only during the active PeterAI session.
+                # Voice session
+                - The user starts and ends the conversation manually with the play/pause control.
+                - While the session is active, answer normally without requiring a wake word.
+                - When the user pauses, the conversation ends. Do not create summaries or reports.
 
-                # Wake word
-                - ONLY respond when the user's latest spoken turn clearly addresses you by name, such as "Peter", "hey Peter", or "PeterAI".
-                - If the latest user turn does not address Peter by name, stay silent. Do not answer, comment, or acknowledge it.
-                - Once the user has addressed Peter, answer only that request. Then return to waiting for the next Peter-addressed turn.
+                # Web search
+                - Use search_web when the user asks about current, recent, time-sensitive, factual, or web-dependent information.
+                - After search_web returns, answer concisely in spoken form and mention source names when useful.
 
                 # Response style
                 - Keep most replies to one or two spoken sentences.
@@ -93,6 +109,24 @@ final class RealtimeClient {
                 """,
                 "output_modalities": ["audio"],
                 "max_output_tokens": 900,
+                "tools": [
+                    [
+                        "type": "function",
+                        "name": "search_web",
+                        "description": "Search the web for current or factual information and return a compact answer with source names.",
+                        "parameters": [
+                            "type": "object",
+                            "properties": [
+                                "query": [
+                                    "type": "string",
+                                    "description": "The web search query to run."
+                                ]
+                            ],
+                            "required": ["query"]
+                        ]
+                    ]
+                ],
+                "tool_choice": "auto",
                 "audio": [
                     "input": [
                         "format": [
@@ -134,7 +168,7 @@ final class RealtimeClient {
                 self.handle(message)
                 self.receiveLoop()
             case .failure(let error):
-                self.onEvent?(.error("Realtime connection failed: \(error.localizedDescription)"))
+                self.onEvent?(.error("Realtime connection failed: \(self.describe(error))"))
                 self.onEvent?(.disconnected)
             }
         }
@@ -182,8 +216,25 @@ final class RealtimeClient {
             if let encoded = json["delta"] as? String, let audio = Data(base64Encoded: encoded) {
                 onEvent?(.audioDelta(audio))
             }
+        case "response.function_call_arguments.done":
+            let name = json["name"] as? String ?? ""
+            let callID = json["call_id"] as? String ?? ""
+            let arguments = json["arguments"] as? String ?? "{}"
+            if !name.isEmpty, !callID.isEmpty {
+                onEvent?(.functionCall(name: name, callID: callID, arguments: arguments))
+            }
         case "response.done":
-            break
+            if let response = json["response"] as? [String: Any],
+               let output = response["output"] as? [[String: Any]] {
+                for item in output where item["type"] as? String == "function_call" {
+                    let name = item["name"] as? String ?? ""
+                    let callID = item["call_id"] as? String ?? ""
+                    let arguments = item["arguments"] as? String ?? "{}"
+                    if !name.isEmpty, !callID.isEmpty {
+                        onEvent?(.functionCall(name: name, callID: callID, arguments: arguments))
+                    }
+                }
+            }
         case "error":
             let errorObject = json["error"] as? [String: Any]
             let message = errorObject?["message"] as? String ?? "Unknown Realtime API error."
@@ -207,9 +258,26 @@ final class RealtimeClient {
 
             socket.send(.string(text)) { [weak self] error in
                 if let error {
-                    self?.onEvent?(.error("Could not send Realtime event: \(error.localizedDescription)"))
+                    self?.onEvent?(.error("Could not send Realtime event: \(self?.describe(error) ?? error.localizedDescription)"))
                 }
             }
         }
+    }
+
+    private func describe(_ error: Error) -> String {
+        let nsError = error as NSError
+        var message = error.localizedDescription
+
+        if message.isEmpty {
+            message = "Unknown error"
+        }
+
+        message += " (\(nsError.domain) \(nsError.code))"
+
+        if let underlying = nsError.userInfo[NSUnderlyingErrorKey] as? NSError {
+            message += "; underlying \(underlying.domain) \(underlying.code): \(underlying.localizedDescription)"
+        }
+
+        return message
     }
 }
