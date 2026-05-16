@@ -29,9 +29,14 @@ and press pause to end the session.
 ## Requirements
 
 - macOS with Xcode installed.
+- Xcode with iOS 26.0+ platform support installed.
+- For Apple Watch support: watchOS 26.0+ platform support installed.
 - iPhone running iOS 26.0 or newer.
 - Optional: Apple Watch running watchOS 26.0 or newer.
 - An OpenAI API key with access to `gpt-realtime-2` and web search.
+
+You can clone the repo without the iOS/watchOS platform components, but Xcode
+needs them installed before it can build, run, or install the app on devices.
 
 ## Setup
 
