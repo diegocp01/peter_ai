@@ -1,5 +1,7 @@
 # PeterAI
 
+<img src="PeterAI/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png" alt="PeterAI app icon" width="96">
+
 PeterAI is a SwiftUI voice agent for iPhone and Apple Watch. It uses OpenAI's
 Realtime API with `gpt-realtime-2` for live voice conversations, plus a small
 web search tool for current information.
